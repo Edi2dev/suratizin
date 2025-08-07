@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surat Izin Online by Edi mahendra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12 max-w-3xl">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-blue-600 mb-2">Surat Izin Online</h1>
+            <p class="text-gray-600">Buat surat izin profesional dalam hitungan detik</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Form Tab -->
+            <div class="p-6">
+                <form id="suratForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Nama Lengkap</label>
+                            <input type="text" id="nama" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Nomor Induk</label>
+                            <input type="text" id="nomorInduk" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2">Instansi/Sekolah</label>
+                        <input type="text" id="instansi" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" required>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Tanggal Izin</label>
+                            <input type="date" id="tanggal" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Durasi Izin</label>
+                            <input type="text" id="durasi" placeholder="Contoh: 2 hari (1-2 Jan 2024)" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2">Alasan Izin</label>
+                        <textarea id="alasan" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" required></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="button" onclick="resetForm()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                            <i class="fas fa-redo mr-2"></i>Reset
+                        </button>
+                        <button type="button" onclick="generatePDF()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i>Download PDF
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Tab -->
+            <div class="border-t border-gray-200 p-6 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-eye mr-2 text-blue-500"></i>Preview Surat
+                </h3>
+                <div id="previewContent" class="bg-white p-6 rounded-lg border border-gray-200">
+                    <p class="text-gray-500 italic">Isi form untuk melihat preview surat...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-12 text-gray-500 text-sm">
+            <p>© 2025 Surat Izin Online | Dibuat oleh Edimahendra<i class="fas fa-heart text-red-500"></i></p>
+        </div>
+    </div>
+
+    <script>
+        // Format tanggal
+        function formatDate(dateString) {
+            if (!dateString) return '[Tanggal]';
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+
+        // Update preview
+        function updatePreview() {
+            const nama = document.getElementById('nama').value || '[Nama Lengkap]';
+            const nomorInduk = document.getElementById('nomorInduk').value || '[Nomor Induk]';
+            const instansi = document.getElementById('instansi').value || '[Nama Instansi]';
+            const tanggal = formatDate(document.getElementById('tanggal').value);
+            const durasi = document.getElementById('durasi').value || '[Durasi Izin]';
+            const alasan = document.getElementById('alasan').value || '[Alasan Izin]';
+
+            document.getElementById('previewContent').innerHTML = `
+                <div class="space-y-4">
+                    <p class="text-right">${tanggal}</p>
+                    <p>Kepada Yth.</p>
+                    <p>Bapak/Ibu Guru/Dosen</p>
+                    <p>${instansi}</p>
+                    <p>di Tempat</p>
+                    
+                    <p class="pt-4">Dengan hormat,</p>
+                    
+                    <p>Saya yang bertanda tangan di bawah ini:</p>
+                    
+                    <div class="ml-4 space-y-1">
+                        <p>Nama &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${nama}</p>
+                        <p>Nomor Induk : ${nomorInduk}</p>
+                    </div>
+                    
+                    <p>Dengan ini mengajukan permohonan izin tidak dapat mengikuti kegiatan pada:</p>
+                    <p>Hari/Tanggal: ${durasi}</p>
+                    <p>Alasan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${alasan}</p>
+                    
+                    <p>Demikian permohonan izin ini saya ajukan. Atas perhatian Bapak/Ibu, saya ucapkan terima kasih.</p>
+                    
+                    <div class="pt-12 text-right">
+                        <p>Hormat saya,</p>
+                        <div class="mt-12 mb-2">${nama}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate PDF
+        function generatePDF() {
+            // Validasi form
+            const form = document.getElementById('suratForm');
+            const inputs = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value) {
+                    input.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    input.classList.remove('border-red-500');
+                }
+            });
+            
+            if (!isValid) {
+                alert('Harap lengkapi semua field yang wajib diisi!');
+                return;
+            }
+            
+            // Buat PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Data dari form
+            const nama = document.getElementById('nama').value;
+            const nomorInduk = document.getElementById('nomorInduk').value;
+            const instansi = document.getElementById('instansi').value;
+            const tanggal = formatDate(document.getElementById('tanggal').value);
+            const durasi = document.getElementById('durasi').value;
+            const alasan = document.getElementById('alasan').value;
+            
+            // Konten surat
+            doc.setFont('helvetica');
+            doc.setFontSize(12);
+            
+            doc.text(tanggal, 160, 20);
+            doc.text('Kepada Yth.', 20, 40);
+            doc.text('Bapak/Ibu Guru/Dosen', 20, 50);
+            doc.text(instansi, 20, 60);
+            doc.text('di Tempat', 20, 70);
+            
+            doc.text('Dengan hormat,', 20, 90);
+            doc.text('Saya yang bertanda tangan di bawah ini:', 20, 110);
+            
+            doc.text(`Nama          : ${nama}`, 30, 130);
+            doc.text(`Nomor Induk : ${nomorInduk}`, 30, 140);
+            
+            doc.text('Dengan ini mengajukan permohonan izin tidak dapat mengikuti kegiatan pada:', 20, 160);
+            doc.text(`Hari/Tanggal: ${durasi}`, 30, 170);
+            doc.text(`Alasan      : ${alasan}`, 30, 180);
+            
+            doc.text('Demikian permohonan izin ini saya ajukan. Atas perhatian Bapak/Ibu, saya ucapkan', 20, 200);
+            doc.text('terima kasih.', 20, 210);
+            
+            doc.text('Hormat saya,', 140, 240);
+            doc.text(nama, 140, 270);
+            
+            // Simpan PDF
+            doc.save(`Surat Izin - ${nama}.pdf`);
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('suratForm').reset();
+            updatePreview();
+        }
+
+        // Event listeners
+        document.querySelectorAll('#suratForm input, #suratForm textarea').forEach(el => {
+            el.addEventListener('input', updatePreview);
+        });
+
+        // Init
+        document.addEventListener('DOMContentLoaded', updatePreview);
+    </script>
+</body>
+</html>
